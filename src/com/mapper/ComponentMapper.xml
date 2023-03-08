@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 首先来解析 namespace: 命名空间,此属性通常用来映射Dao（Mapper）层接口. -->
+<mapper namespace="com.mapper.ComponentMapper">
+    <!-- id: 对应Dao（Mapper）层接口方法名 parameterType：指定输入参数类型 -->
+    <!-- useGeneratedKeys="true"把新增加的主键赋值到自己定义的keyProperty（id）中 -->
+
+
+    <delete id="deleteByIds">
+        delete from component where component_id in
+        <foreach collection="ids" item="component_id" separator="," open="(" close=")">
+            #{component_id}
+        </foreach>
+    </delete>
+
+    <select id="selectByPageAndCondition" resultType="com.entity.Component">
+        select * from component
+        <where>
+            <if test="component.component_type != null and component.component_type != ''">
+                and component_type like #{component.component_type}
+            </if>
+        </where>
+        limit #{begin},#{size}
+    </select>
+
+    <select id="selectTotalCountByCondition" resultType="java.lang.Integer">
+        select count(*) from component
+        <where>
+            <if test="component_type != null and component_type != ''">
+                and component_type like #{component_type}
+            </if>
+        </where>
+    </select>
+</mapper>

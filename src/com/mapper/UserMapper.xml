@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 首先来解析 namespace: 命名空间,此属性通常用来映射Dao（Mapper）层接口. -->
+<mapper namespace="com.mapper.UserMapper">
+    <!-- id: 对应Dao（Mapper）层接口方法名 parameterType：指定输入参数类型 -->
+    <!-- useGeneratedKeys="true"把新增加的主键赋值到自己定义的keyProperty（id）中 -->
+    <select id="getUserInfo" parameterType="String" resultType="com.entity.User">
+		select * from customer where customer_id = #{customer_id}
+    </select>
+    <select id="getAdminInfo" parameterType="String" resultType="com.entity.Admin">
+        select * from controller where controller_id = #{controller_id}
+    </select>
+
+    <select id="selectByPageAndCondition" resultType="com.entity.User">
+        select * from customer
+        <where>
+            <if test="user.customer_name != null and user.customer_name != ''">
+                and customer_name like #{user.customer_name}
+            </if>
+        </where>
+        limit #{begin},#{size}
+    </select>
+
+    <select id="selectTotalCountByCondition" resultType="java.lang.Integer">
+        select count(*) from customer
+        <where>
+            <if test="customer_name != null and customer_name != ''">
+                and customer_name like #{customer_name}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insertUser">
+        insert into customer(customer_id,customer_name,customer_pwd,customer_tel,customer_address) values(#{customer_id},#{customer_name},#{customer_pwd},#{customer_tel},#{customer_address})
+    </insert>
+
+    <update id="updateUser">
+        update customer set customer_name=#{customer_name},customer_pwd=#{customer_pwd} where customer_id=#{customer_id}
+    </update>
+
+    <delete id="deleteByIds">
+        delete from customer where customer_id in
+        <foreach collection="ids" item="customer_id" separator="," open="(" close=")">
+            #{customer_id}
+        </foreach>
+    </delete>
+</mapper>

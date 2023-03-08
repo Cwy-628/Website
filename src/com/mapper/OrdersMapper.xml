@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 首先来解析 namespace: 命名空间,此属性通常用来映射Dao（Mapper）层接口. -->
+<mapper namespace="com.mapper.OrdersMapper">
+    <!-- id: 对应Dao（Mapper）层接口方法名 parameterType：指定输入参数类型 -->
+    <!-- useGeneratedKeys="true"把新增加的主键赋值到自己定义的keyProperty（id）中 -->
+
+
+    <delete id="deleteByIds">
+        delete from orders where orders_id in
+        <foreach collection="ids" item="orders_id" separator="," open="(" close=")">
+            #{orders_id}
+        </foreach>
+    </delete>
+
+    <select id="selectByPageAndCondition" resultType="com.entity.Orders">
+        select * from orders
+        <where>
+            <if test="orders.orders_state != null and orders.orders_state != ''">
+                and orders_state like #{orders.orders_state}
+            </if>
+        </where>
+        limit #{begin},#{size}
+    </select>
+
+    <select id="selectTotalCountByCondition" resultType="java.lang.Integer">
+        select count(*) from orders
+        <where>
+            <if test="orders_state != null and orders_state != ''">
+                and orders_state like #{orders_state}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectAll" resultType="com.entity.getOrders">
+        select orders_id,component.component_info,customer.customer_name,orders_state,orders_num
+        from orders,component,customer
+        where orders.component_id=component.component_id and customer.customer_id=orders.customer_id
+    </select>
+</mapper>

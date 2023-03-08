@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员后台</title>
+
+    <style>
+        .el-header {
+            background-color: #B3C0D1;
+            color: #333;
+            line-height: 60px;
+        }
+
+        .el-aside {
+            color: #333;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+
+    <!--    界面总体设计-->
+    <el-container style="height: auto; border: 1px solid #eee">
+        <el-aside width="200px" style="background-color: rgb(238, 241, 246); font-size: 15px">
+            <el-menu :default-openeds="['2','3','4']">
+                <el-submenu index="1">
+                    <template slot="title"><i class="el-icon-message"></i><a href="ctrl.html">用户管理</a></template>
+                    <el-menu-item-group>
+                        <el-menu-item index="1-1">查询用户信息</el-menu-item>
+                        <el-menu-item index="1-2">新增用户信息</el-menu-item>
+                        <el-menu-item index="1-3">修改用户信息</el-menu-item>
+                        <el-menu-item index="1-4">删除用户信息</el-menu-item>
+                    </el-menu-item-group>
+                </el-submenu>
+
+                <el-submenu index="2">
+                    <template slot="title"><i class="el-icon-menu"></i><a href="ctrlproduct.html">商品管理</a></template>
+                    <el-menu-item-group>
+                        <el-menu-item index="2-1">查询商品信息</el-menu-item>
+                        <el-menu-item index="2-2">添加商品</el-menu-item>
+                        <el-menu-item index="2-3">修改商品</el-menu-item>
+                        <el-menu-item index="2-4">删除商品</el-menu-item>
+                        <el-menu-item index="2-5">商品评论</el-menu-item>
+                    </el-menu-item-group>
+
+                </el-submenu>
+
+                <el-submenu index="3">
+                    <template slot="title"><i class="el-icon-setting"></i><a href="ctrlorders.html">订单管理</a></template>
+                    <el-menu-item-group>
+                        <el-menu-item index="3-1">查询待处理订单信息</el-menu-item>
+                        <el-menu-item index="3-2">查询已接受订单信息</el-menu-item>
+                        <el-menu-item index="3-3">查询已完成订单信息</el-menu-item>
+                        <el-menu-item index="3-4">删除订单信息</el-menu-item>
+                        <!--                        <el-menu-item index="3-4">选项2</el-menu-item>-->
+                    </el-menu-item-group>
+
+                </el-submenu>
+                <el-submenu index="4">
+                    <template slot="title"><i class="el-icon-setting"></i><a href="ctrlnews.html">公告管理</a></template>
+                    <el-menu-item-group>
+                        <el-menu-item index="3-1">查询已发布公告</el-menu-item>
+                        <el-menu-item index="3-2">添加公告</el-menu-item>
+                        <el-menu-item index="3-3">修改公告</el-menu-item>
+                        <el-menu-item index="3-4">删除公告</el-menu-item>
+                    </el-menu-item-group>
+
+                </el-submenu>
+
+            </el-menu>
+        </el-aside>
+
+        <el-container>
+            <el-header >
+                <span style="text-align: center; font-size: 30px;margin-left: 400px">电脑零部件销售管理系统</span>
+                <el-dropdown>
+                    <i class="el-icon-setting" style="margin-right:15px;margin-left: 250px"></i>
+                    <el-dropdown-menu slot="dropdown" style="text-align: right; font-size: 20px">
+                        <el-dropdown-item>查看</el-dropdown-item>
+                        <el-dropdown-item>新增</el-dropdown-item>
+                        <el-dropdown-item>删除</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+                <span>当前管理员：张三</span>
+            </el-header>
+
+            <el-main>
+                <!--搜索表单-->
+                <el-form :inline="true" :model="component" class="demo-form-inline">
+
+                    <el-form-item label="商品种类">
+                        <el-select v-model="component.component_type" placeholder="商品种类">
+                            <el-option label="显卡" value="显卡"></el-option>
+                            <el-option label="CPU" value="CPU"></el-option>
+                            <el-option label="内存条" value="内存条"></el-option>
+                            <el-option label="机箱" value="机箱"></el-option>
+                            <el-option label="硬盘" value="硬盘"></el-option>
+                            <el-option label="散热器" value="散热器"></el-option>
+                            <el-option label="主板" value="主板"></el-option>
+                            <el-option label="电源" value="电源"></el-option>
+                            <el-option label="外设" value="外设"></el-option>
+                            <el-option label="" value=""></el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit">查询</el-button>
+                    </el-form-item>
+                </el-form>
+
+                <!--按钮-->
+
+                <el-row>
+
+                    <el-button type="danger" plain @click="deleteByIds">批量删除</el-button>
+                    <el-button type="primary" plain @click="dialogVisible = true">新增商品</el-button>
+
+                </el-row>
+
+
+<!--                添加数据对话框表单-->
+                <el-dialog
+                        title="新增商品信息"
+                        :visible.sync="dialogVisible"
+                        width="30%"
+                >
+
+                    <el-form ref="form" :model="component" label-width="80px">
+
+                        <el-form-item label="种类">
+                            <el-input v-model="component.component_type"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="价格">
+                            <el-input v-model="component.component_price"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="商品名">
+                            <el-input v-model="component.component_info"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="商品简介">
+                            <el-input type="textarea" v-model="component.component_intro"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="库存量">
+                            <el-input v-model="component.sales_volume"></el-input>
+                        </el-form-item>
+
+                        <el-form-item>
+                            <el-button type="primary" @click="addComponent">提交</el-button>
+                            <el-button @click="dialogVisible = false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+
+                </el-dialog>
+
+
+<!--                 修改商品数据表单-->
+                <el-dialog
+                        title="修改商品数据"
+                        :visible.sync="updateVisible"
+                        width="30%"
+                >
+
+                    <el-form ref="form" :model="component" label-width="80px">
+
+                        <el-form-item label="种类">
+                            <el-input v-model="component.component_type"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="价格">
+                            <el-input v-model="component.component_price"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="商品名">
+                            <el-input v-model="component.component_info"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="商品评价">
+                            <el-input type="textarea" v-model="component.component_intro"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="库存量">
+                            <el-input type="textarea" v-model="component.sales_volume"></el-input>
+                        </el-form-item>
+
+                        <el-form-item>
+                            <el-button type="primary" @click="updateComponent">确认修改</el-button>
+                            <el-button @click="updateVisible = false">取消修改</el-button>
+                        </el-form-item>
+                    </el-form>
+
+                </el-dialog>
+
+
+                <!--表格-->
+                <template>
+                    <el-table
+                            :data="tableData"
+                            style="width: 100%"
+                            :row-class-name="tableRowClassName"
+                            @selection-change="handleSelectionChange"
+                    >
+                        <el-table-column
+                                type="selection"
+                                width="55">
+                        </el-table-column>
+                        <el-table-column
+                                type="index"
+                                width="50">
+                        </el-table-column>
+
+                        <el-table-column
+                                prop="component_type"
+                                label="商品种类"
+                                align="center"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="component_price"
+                                label="商品价格"
+                                align="center"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="component_info"
+                                align="center"
+                                label="商品名称">
+                        </el-table-column>
+                        <el-table-column
+                                prop="component_intro"
+                                align="center"
+                                label="商品简介">
+                        </el-table-column>
+                        <el-table-column
+                                prop="sales_volume"
+                                align="center"
+                                label="商品库存">
+                        </el-table-column>
+
+                        <el-table-column
+                                align="center"
+                                label="操作">
+                            <template slot-scope="scope">
+                                <el-row>
+                                    <el-button type="primary" @click="beforeUpdateComponent(scope.row)">修改</el-button>
+                                    <el-button type="danger" @click = "deleteComponent(scope.row.component_id)">删除</el-button>
+                                </el-row>
+                            </template>
+
+                        </el-table-column>
+
+                    </el-table>
+                </template>
+
+                <!--分页工具条-->
+                <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page="currentPage"
+                        :page-sizes="[5, 10, 15, 20]"
+                        :page-size="5"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="totalCount">
+                </el-pagination>
+            </el-main>
+        </el-container>
+    </el-container>
+
+
+
+
+
+</div>
+
+<script src="assets/js/vue.js"></script>
+<script src="element-ui/lib/index.js"></script>
+<link rel="stylesheet" href="element-ui/lib/theme-chalk/index.css">
+<script src="assets/js/axios-0.18.0.js"></script>
+
+
+<script>
+    new Vue({
+        el: "#app",
+
+        mounted(){
+            //当页面加载完成后，发送异步请求,获取数据
+            this.selectAll();
+        },
+
+        methods: {
+
+            // selectAll(){
+            //     var _this = this;
+            //     axios({
+            //         method:"get",
+            //         url:"http://localhost:8080/cwy/component/selectAll"
+            //     }).then(function (resp){
+            //         _this.tableData = resp.data;
+            //     })
+            // },
+            selectAll(){
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/cwy/component/selectByPageAndCondition?currentPage="+this.currentPage+"&pageSize="+this.pageSize,
+                    data:this.component
+                }).then(resp=>{
+                    //设置表格数据
+                    this.tableData = resp.data.rows;
+                    //设置总记录数
+                    this.totalCount=resp.data.totalCount;
+                })
+            },
+
+
+
+            tableRowClassName({row, rowIndex}) {
+                if (rowIndex === 1) {
+                    return 'warning-row';
+                } else if (rowIndex === 3) {
+                    return 'success-row';
+                }
+                return '';
+            },
+            // 复选框选中后执行的方法
+            handleSelectionChange(val) {
+                this.multipleSelection = val;
+
+                console.log(this.multipleSelection)
+            },
+            // 查询方法
+            onSubmit() {
+                this.selectAll();
+            },
+
+
+            // 添加数据
+
+            addComponent() {
+                //console.log(this.component);
+                var _this = this;
+                //发送ajax请求，添加数据
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/cwy/component/add",
+                    data:_this.component
+                }).then(function (resp){
+                    if(resp.data=="success"){
+                        //添加成功
+                        //关闭窗口
+                        _this.dialogVisible = false;
+                        //再次查询
+                        _this.selectAll();
+                        //弹出消息
+                        _this.$message({
+                            showClose: true,
+                            message: '恭喜你，添加成功',
+                            type: 'success'
+                        });
+                    }
+                })
+            },
+
+
+
+            //修改数据前置 打开修改窗口 传入修改行数id
+            beforeUpdateComponent(row){
+                var _this = this;
+                _this.component = row;
+                _this.updateVisible = true;
+            },
+
+            //修改用户信息
+            updateComponent(){
+                var _this=this;
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/cwy/component/update",
+                    data:_this.component
+                }).then(
+                    resp=>{
+                        if(resp.data=="success"){
+                            //表示修改成功
+                            //关闭窗口
+                            _this.updateVisible=false;
+                            //刷新页面,重新查询数据
+                            _this.selectAll();
+                            //弹出消息提示
+                            _this.$message({
+                                message: '恭喜你，修改成功!',
+                                type: 'success'
+                            })
+                        }
+                    })
+            },
+            //
+
+            //删除单个用户
+            deleteComponent(component_id){
+                //console.log(this.brand);
+                var _this = this;
+                _this.component_id = component_id;
+                //发送ajax请求
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/cwy/component/delete",
+                    data:_this.component_id
+                }).then(resp => {
+                    if(resp.data == "success") {
+                        //删除成功
+
+                        //重新查询数据
+                        _this.selectAll();
+
+                        //弹出消息提示
+                        _this.$message({
+                            message: '恭喜你，删除成功',
+                            type: 'success'
+                        });
+                    }
+                })
+            },
+
+
+
+            //批量删除
+            deleteByIds(){
+                //1.创建id数组,从multipleSelection中获取
+                // console.log(this.multipleSelection);
+                for (let i = 0 ; i<this.multipleSelection.length ; i++){
+                    let selectionElement = this.multipleSelection[i];
+                    this.selectedIds[i] = selectionElement.component_id;
+                }
+
+                //2.发送Ajax请求
+                var _this = this;
+                //发送ajax请求，添加数据
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/cwy/component/deleteByIds",
+                    data:_this.selectedIds
+                }).then(function (resp){
+                    if(resp.data=="success"){
+                        //删除成功
+
+                        //再次查询
+                        _this.selectAll();
+                        //弹出消息
+                        _this.$message({
+                            showClose: true,
+                            message: '恭喜你，删除成功',
+                            type: 'success'
+                        });
+                    }
+                })
+
+            },
+
+
+            //分页
+            handleSizeChange(val) {
+                // console.log(`每页 ${val} 条`);
+                this.pageSize = val;
+                this.selectAll();
+            },
+            handleCurrentChange(val) {
+                // console.log(`当前页: ${val}`);
+                this.currentPage = val;
+                this.selectAll();
+            }
+
+        },
+        data() {
+            return {
+                //总页数
+                totalCount: 100,
+                //每页显示5条
+                pageSize: 5,
+                // 当前页码
+                currentPage: 1,
+                // 添加数据对话框是否展示的标记
+                dialogVisible: false,
+                //修改数据对话框是否展示的标记
+                updateVisible:false,
+
+                // 商品模型数据
+                component: {
+                    component_type: '',
+                    component_price: '',
+                    component_info: '',
+                    component_intro:'',
+                    sales_volume:""
+                },
+
+                //被选中的id数组
+                selectedIds:[],
+                // 复选框选中数据集合
+                multipleSelection: [],
+                // 表格数据
+                tableData: [{
+                    component_type: '华为',
+                    component_price: '华为科技有限公司',
+                    component_info: '100',
+                    component_comment: "1",
+                    sales_volume:""
+                }, {
+                    component_type: '华为',
+                    component_price: '华为科技有限公司',
+                    component_info: '100',
+                    component_comment: "1",
+                    sales_volume:""
+                }]
+
+            }
+        }
+    })
+
+</script>
+</body>
+</html>
